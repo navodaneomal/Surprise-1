@@ -404,6 +404,23 @@ try {
   await shot(p2, 'desktop-photo');
   ok(true, 'single-file build runs from file:// with fonts and art inline');
   await p2.close();
+
+  /* ── Hosting layouts ────────────────────────────────────────────────── */
+  // A host that serves the whole project folder (e.g. a folder dropped on
+  // Netlify without a build) must still open the game, via ./index.html.
+  console.log('\nHosting layouts');
+  const rootServer = createServer(ROOT);
+  await new Promise((r) => rootServer.listen(0, r));
+  const p3 = await newPage();
+  await p3.goto(`http://localhost:${rootServer.address().port}/`);
+  await p3.waitForURL(/\/site\/$/);
+  await p3.waitForSelector('#begin');
+  ok((await p3.textContent('#begin')).trim() === 'BEGIN INVESTIGATION', 'project root redirects to the game (whole folder hosted)');
+  await p3.click('#begin');
+  await p3.waitForSelector('.overlay.cover');
+  ok(true, 'the game starts when served from /site/');
+  await p3.close();
+  rootServer.close();
 } catch (e) {
   console.error('\n' + (e && e.stack || e));
   errors.push('TEST: ' + (e && e.message));

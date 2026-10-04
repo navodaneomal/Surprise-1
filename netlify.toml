@@ -1,0 +1,11 @@
+# Netlify: publish only the game (site/), never the solutions or source.
+[build]
+  publish = "site"
+  command = "node tools/build.mjs || echo 'Build skipped: serving the prebuilt site/ folder'"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "no-referrer"
+    X-Content-Type-Options = "nosniff"

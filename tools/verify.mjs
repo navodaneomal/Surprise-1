@@ -182,5 +182,22 @@ check('the Deep Archive door reveal opens to its key', Seal.open(c6.doorReveal, 
 check('case 1 is readable without any key', vault.c1.id === 1 && vault.c1.evidence.length === 4);
 check('no answer appears in the page source in the clear', ['c1', 'c2', 'c3', 'c4', 'c5', 'deep'].every((k) => !built.includes(answers[k].key)) && !built.includes(answers.lock));
 
+/* ── Hosting ───────────────────────────────────────────────────────────── */
+section('Hosting');
+const ROOTDIR = path.resolve(SITE, '..');
+const read = (f) => fs.readFileSync(path.join(ROOTDIR, f), 'utf8');
+const vercel = JSON.parse(read('vercel.json'));
+check('vercel.json serves only site/ (no spoilers deployed)', vercel.outputDirectory === 'site');
+check('vercel.json needs no install step and uses no framework', vercel.installCommand === '' && vercel.framework === null);
+check('vercel.json build falls back to the prebuilt site', /tools\/build\.mjs/.test(vercel.buildCommand) && /\|\|/.test(vercel.buildCommand));
+const netlify = read('netlify.toml');
+check('netlify.toml publishes only site/', /^\s*publish\s*=\s*"site"\s*$/m.test(netlify));
+check('netlify.toml build falls back to the prebuilt site', /command\s*=\s*"node tools\/build\.mjs \|\|/.test(netlify));
+check('root index.html sends visitors to site/', /url=site\//.test(read('index.html')) && /location\.replace\('site\/'/.test(read('index.html')));
+const redirects = read('_redirects');
+check('_redirects hides docs, source and tools when the whole folder is hosted', ['/docs/*', '/src/*', '/tools/*', '/tests/*', '/README.md'].every((p) => redirects.includes(p)));
+check('site/index.html exists with relative asset paths only', (() => { const h = fs.readFileSync(path.join(SITE, 'index.html'), 'utf8'); return !/(src|href)="\//.test(h); })());
+check('every file site/index.html references exists', [...fs.readFileSync(path.join(SITE, 'index.html'), 'utf8').matchAll(/(?:src|href)="([^"#:]+)"/g)].every((m) => fs.existsSync(path.join(SITE, m[1]))));
+
 console.log(`\n${passes} passed, ${failures} failed`);
 process.exit(failures ? 1 : 0);

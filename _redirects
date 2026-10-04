@@ -1,0 +1,12 @@
+# Netlify, when the whole project folder is dropped without a build:
+# send every non-game path back to the game so no spoilers are reachable.
+/docs/*       /site/  302!
+/src/*        /site/  302!
+/tools/*      /site/  302!
+/tests/*      /site/  302!
+/dist/*       /site/  302!
+/.github/*    /site/  302!
+/README.md    /site/  302!
+/package.json /site/  302!
+/vercel.json  /site/  302!
+/netlify.toml /site/  302!

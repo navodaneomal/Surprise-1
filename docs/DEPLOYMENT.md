@@ -1,85 +1,79 @@
 # Deploying Case File 001
 
-The website is the **`site/`** folder: plain static files with no server code, no
-database, no build step needed to host it, and no external requests. Upload that
-folder anywhere that serves files.
-
-> Deploy only `site/`. The repository also contains the solution guide and the
-> unsealed puzzle source. Don't publish the whole repo where she could find it.
+The game is the **`site/`** folder: plain static files with no server code, no
+database and no external requests. The repository is already configured for
+Vercel and Netlify (`vercel.json`, `netlify.toml`), so **you don't need to change
+any settings**. Both hosts publish only `site/` and never the solutions.
 
 ---
 
-## Option A — Netlify Drop (easiest, 1 minute, free)
+## Vercel (import from GitHub)
 
-1. Go to **https://app.netlify.com/drop**.
-2. Drag the **`site`** folder onto the page.
-3. You get a link like `https://random-name-123.netlify.app`. You can rename it
-   under *Site configuration → Change site name* (e.g. `case-file-001`).
+1. Go to **https://vercel.com/new** and import **Surprise-1**.
+2. Leave every setting as it is. *Framework: Other*, *Root Directory: blank*.
+   `vercel.json` sets the rest.
+3. Press **Deploy**. Your link is the *Production* domain, e.g.
+   `https://surprise-1.vercel.app`.
 
-To update after edits: `npm run build`, then drag `site/` onto *Deploys* again.
+Already created the project before this fix? Open it in Vercel and choose
+**Deployments → ⋯ → Redeploy** on the newest deployment, or just push any commit.
 
-## Option B — Cloudflare Pages (free)
+## Netlify — Option 1: drag and drop (no account setup)
 
-1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Upload assets**.
-2. Name the project, upload the **`site`** folder, deploy.
+1. Download **`case-file-001-website.zip`** and **unzip it**. Netlify Drop
+   cannot take a zip file.
+2. Go to **https://app.netlify.com/drop**.
+3. Drag the unzipped folder **`case-file-001-website`** onto the page.
 
-## Option C — GitHub Pages (from this repository)
+To update later, drag a fresh folder onto your site's **Deploys** page.
 
-This repo includes a workflow, `.github/workflows/deploy-pages.yml`, that
-publishes **only** the `site/` folder.
+## Netlify — Option 2: import from GitHub
 
-1. GitHub → repository **Settings → Pages → Build and deployment → Source:
-   GitHub Actions**.
-2. **Actions → Deploy site to GitHub Pages → Run workflow.**
-3. The link appears in the workflow run (`https://<user>.github.io/<repo>/`).
+1. **https://app.netlify.com** → *Add new site* → *Import an existing project* →
+   GitHub → **Surprise-1**.
+2. Leave the settings as they are (`netlify.toml` sets publish = `site`) and press
+   **Deploy**.
 
-Notes: Pages for a *private* repository needs a paid GitHub plan. On a free plan
-the repo must be public, and then the solutions are public too. If that matters,
-use Option A or B instead.
+## Other options
 
-## Option D — Vercel / any static host
+- **Cloudflare Pages:** *Workers & Pages → Create → Pages → Upload assets* and
+  upload the unzipped `case-file-001-website` folder.
+- **GitHub Pages:** *Settings → Pages → Source: GitHub Actions*, then *Actions →
+  Deploy site to GitHub Pages → Run workflow*. It needs a public repo on a free
+  plan, which would expose the solutions.
+- **One file:** `dist/case-file-001.html` is the whole game in one offline file.
+  It's good for laptops; phones don't always run HTML attachments.
+- **Locally:** `npm run serve` → http://localhost:8080, or double-click
+  `site/index.html`.
 
-Point the host at the `site` folder as the output directory, with no build command
-and no framework. Any web server, S3 bucket or shared hosting works the same way.
+Even if a host serves the whole project folder by mistake, the root `index.html`
+forwards to the game, and `_redirects` keeps the docs and source out of reach on
+Netlify.
 
-## Option E — one single file
+---
 
-`npm run build` also writes **`dist/case-file-001.html`**: the whole game in one
-self-contained file (fonts, art and scripts inlined), about 470 KB. It runs
-offline when opened in a browser.
+## Troubleshooting
 
-Caveats: phones don't always open HTML attachments well. Some messaging apps and
-file previewers show the file without running its scripts. A hosted link (A–D) is
-the most reliable way to send it. The single file is great for laptops, USB
-sticks, or as a backup.
+| What you see | Why | Fix |
+|---|---|---|
+| Vercel **404: NOT_FOUND** | Deployed before `vercel.json` existed, so Vercel served the project root | Redeploy (see above). Make sure *Root Directory* is blank and there's no *Output Directory* override |
+| Netlify **"Page not found"** after a drop | A zip, or the wrong folder, was dropped | Unzip `case-file-001-website.zip` and drop **that folder** |
+| Vercel asks you to **log in** | You opened a *Preview* URL; previews are protected by default | Use the *Production* domain shown on the project page |
+| An old version keeps showing | Browser cache | Hard refresh, or open the link in a private window |
+| The build log shows a build error | A typo after editing `src/content` | The deploy still serves the last committed `site/`. Run `npm run build` locally to see the error |
 
-## Run it locally
-
-```bash
-npm run serve            # http://localhost:8080  (no install needed)
-# or
-python3 -m http.server --directory site 8080
-```
-
-You can also just double-click `site/index.html`. It's built to work from
-`file://` (classic scripts, no modules, no fetch).
+Still stuck? Copy the link you deployed, or a screenshot of the error, and share it.
 
 ---
 
 ## Before you send the link
 
-- **Test on her kind of phone.** Make sure sound plays after *Begin Investigation*
-  (not on silent).
-- **Reset your progress** (*Settings → Reset investigation*) if you play-tested in
-  the same browser she'll use.
-- **Privacy:** the page sets `noindex` and `robots.txt` blocks crawlers, so search
-  engines shouldn't list it. Anyone with the link can still open it, so share it
-  only with her.
-- **After updating:** browsers may cache old files. Hard-refresh (or open in a
-  private window) to check the new version. Her progress is keyed to the answers,
-  so content edits that don't change answers keep her saved progress.
-
-## Custom domain (optional)
-
-Netlify, Cloudflare Pages and GitHub Pages all support custom domains in their
-settings. Nothing in the site needs to change.
+- **Make the GitHub repo private.** It contains every answer. On GitHub: *Settings →
+  General → Danger Zone → Change repository visibility → Private*. Vercel and
+  Netlify both deploy private repos on their free plans.
+- **Test on her kind of phone.** Sound should play after *Begin Investigation*
+  (phone not on silent).
+- **Reset your own progress** (*Settings → Reset investigation*) if you
+  play-tested in the browser she'll use.
+- **Privacy:** pages are served with `noindex` and robots are blocked, so search
+  engines shouldn't list it. Anyone with the link can still open it.

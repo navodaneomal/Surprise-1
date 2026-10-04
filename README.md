@@ -21,8 +21,8 @@ asked for.
 </p>
 
 > ⚠️ **Spoilers live in this repository.** `docs/SOLUTIONS.md` and `src/content/`
-> contain every answer. Deploy only the `site/` folder, and don't send her the
-> repo link.
+> contain every answer. Keep the repo **private** and never send her the repo
+> link. The hosting configs publish only the `site/` folder.
 
 ---
 
@@ -31,7 +31,8 @@ asked for.
 | I want to… | Do this |
 |---|---|
 | **Play it now** | Open `site/index.html` in a browser, or run `npm run serve` → http://localhost:8080 |
-| **Put it online** | Drag the `site` folder onto https://app.netlify.com/drop. Details: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
+| **Put it online (Vercel)** | Import this repo at https://vercel.com/new and press Deploy. No settings needed (`vercel.json`) |
+| **Put it online (Netlify)** | Unzip `case-file-001-website.zip`, then drag the folder onto https://app.netlify.com/drop. Details: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
 | **Send one file** | `dist/case-file-001.html`: the whole game in one offline file |
 | **Personalise it** | Edit `src/content/config.js`, then `npm run build`. See [docs/CUSTOMIZING.md](docs/CUSTOMIZING.md) |
 | **See every answer** | [docs/SOLUTIONS.md](docs/SOLUTIONS.md) (creator's solution guide) |
@@ -112,6 +113,9 @@ tools/
 tests/e2e.mjs         full automated playthrough in headless Chromium
 docs/                 SOLUTIONS.md (spoilers), CUSTOMIZING.md, DEPLOYMENT.md
 dist/                 case-file-001.html (single-file build)
+vercel.json           Vercel: publish site/ only, no install, build with fallback
+netlify.toml          Netlify: same
+index.html, _redirects  if a host serves the whole folder: forward to site/, hide the rest
 ```
 
 ### Commands
@@ -122,25 +126,26 @@ npm run verify     # puzzle integrity + vault checks (no browser needed)
 npm run check      # CI: fail if the vault is stale, then verify
 npm run serve      # local server on http://localhost:8080
 npm run test:e2e   # full playthrough in Chromium (needs Playwright); SHOTS=1 saves screenshots
-npm run package    # build + verify + zip everything to dist/case-file-001.zip
+npm run package    # build + verify + zip: dist/case-file-001.zip (project) and dist/case-file-001-website.zip (game only)
 ```
 
 ### Verification
 
-`npm run verify` (99 checks) derives every answer from the evidence itself:
+`npm run verify` (108 checks) derives every answer from the evidence itself:
 acrostic and telestich of the note, clock minutes ordered by date → A1Z26, Morse
 decoding of the hum (and that it fits the tape timeline), each lock digit read
 from the documents, the Caesar shift from the room number, card placement in the
 index, the six margin marks spelling the Deep Archive word, and that the finale
 contains the required lines in order. It also confirms every sealed blob opens
 with exactly its key (plus accepted alternatives), rejects wrong keys, and that no
-answer appears anywhere in the page source.
+answer appears anywhere in the page source. Finally, it checks that the Vercel
+and Netlify configs publish only the game.
 
-`npm run test:e2e` (63 checks) plays the whole game at phone size, from *Begin
+`npm run test:e2e` (65 checks) plays the whole game at phone size, from *Begin
 Investigation* through the Deep Archive. It finds all six marks, uses the lamp,
 and checks the back button, reload persistence, reset, the hint-reveal path, the
-offline single-file build, horizontal overflow, and that the console is free of
-errors.
+offline single-file build, hosting from the project root, horizontal overflow,
+and that the console is free of errors.
 
 GitHub Actions runs the verification on every push (`.github/workflows/verify.yml`).
 A manual workflow publishes only `site/` to GitHub Pages
